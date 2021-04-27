@@ -5,6 +5,8 @@ designed with Purism's Librem 5 smartphone in mind.
 
 It is still very much a work in progress.
 
+![screenshot](https://github.com/wctaylor/ruler/blob/main/screenshots/design.png)
+
 ## Building from Source
 
 ### Using GNOME Builder
