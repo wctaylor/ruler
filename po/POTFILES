@@ -1,0 +1,7 @@
+data/org.gnome.ruler.desktop.in
+data/org.gnome.ruler.appdata.xml.in
+data/org.gnome.ruler.gschema.xml
+src/window.ui
+src/main.py
+src/window.py
+

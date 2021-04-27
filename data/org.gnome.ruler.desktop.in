@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=ruler
+Exec=ruler
+Icon=org.gnome.ruler
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true
