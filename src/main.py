@@ -20,7 +20,7 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 
-from gi.repository import Gtk, Gdk, Gio
+from gi.repository import Gtk, Gdk, Gio, GObject
 
 from .window import RulerWindow
 
@@ -31,14 +31,15 @@ class Application(Gtk.Application):
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
 
     def do_activate(self):
-        win = self.props.active_window
-        if not win:
-            win = RulerWindow(application=self)
-        win.present()
+        window = self.props.active_window
+        if not window:
+            window = RulerWindow(application=self)
+        window.present()
 
-        window  = win.get_window()
-        display = window.get_display()
-        monitor = display.get_monitor_at_window(window)
+        # Initial set up
+        gdk_window  = window.get_window()
+        display     = gdk_window.get_display()
+        monitor     = display.get_monitor_at_window(gdk_window)
 
         geometry      = monitor.get_geometry()
         max_width_px  = geometry.width
@@ -46,41 +47,8 @@ class Application(Gtk.Application):
         max_width_mm  = monitor.get_width_mm()
         max_height_mm = monitor.get_height_mm()
 
-        if (max_width_mm >= max_height_mm):
-            orientation     = "landscape"
-            long_dim_mm     = max_width_mm
-            short_dim_mm    = max_height_mm
-            long_px_per_mm  = max_width_px/max_width_mm
-            short_px_per_mm = max_height_px/max_height_mm
-        else:
-            orientation     = "portrait"
-            short_dim_mm    = max_width_mm
-            long_dim_mm     = max_height_mm
-            short_px_per_mm = max_width_px/max_width_mm
-            long_px_per_mm  = max_height_px/max_height_mm
-
-        if (long_dim_mm >= win.DEFAULT_LONG_DIM_MM):
-            long_dim_mm  = win.DEFAULT_LONG_DIM_MM
-        if (short_dim_mm >= win.DEFAULT_SHORT_DIM_MM):
-            short_dim_mm  = win.DEFAULT_SHORT_DIM_MM
-
-        long_dim_px  = long_dim_mm*long_px_per_mm
-        short_dim_px = short_dim_mm*short_px_per_mm
-
-        win.set_size(long_dim_mm, short_dim_mm,
-                     long_dim_px, short_dim_px, orientation)
-
-        win.draw_ruler()
-        # win.draw_ruler(width_mm, height_mm, width_px, height_px)
-        # screen = self.get_screen()
-        # display = screen.get_display()
-        # monitor = display.get_n_monitors()
-        # monitor = display.get_monitor(monitor)
-
-        # print(window.get_width(),
-        #       window.get_height(),
-        #       window.get_scale_factor())
-
+        window.width_px_per_mm  = max_width_px/max_width_mm
+        window.height_px_per_mm = max_height_px/max_height_mm
 
 def main(version):
     app = Application()

@@ -25,9 +25,8 @@ from gi.repository import Gtk, Gdk, Pango, PangoCairo
 @Gtk.Template(resource_path='/com/github/wctaylor/ruler/window.ui')
 class RulerWindow(Gtk.ApplicationWindow):
     # Set a default size of 5" x 1"
-    MM_PER_INCH      = 25.4
-    DEFAULT_LONG_DIM_MM   = 5*MM_PER_INCH
-    DEFAULT_SHORT_DIM_MM  = 1*MM_PER_INCH
+    MARGIN_MM   = 5
+    MM_PER_INCH = 25.4
 
     __gtype_name__ = 'RulerWindow'
 
@@ -37,89 +36,115 @@ class RulerWindow(Gtk.ApplicationWindow):
         super().__init__(**kwargs)
         self.ruler_area.connect("draw", self.on_draw)
 
-    def set_size(self, long_dim_mm, short_dim_mm,
-                 long_dim_px, short_dim_px, orientation):
-        self.long_dim_mm  = long_dim_mm
-        self.short_dim_mm = short_dim_mm
-        self.long_dim_px  = long_dim_px
-        self.short_dim_px = short_dim_px
-
-        self.long_px_per_mm  = long_dim_px/long_dim_mm
-        self.short_px_per_mm = short_dim_px/short_dim_mm
-
-        self.orientation = orientation
-
-        if (orientation == "landscape"):
-            self.ruler_area.set_size_request(long_dim_px, short_dim_px)
-        else:
-            self.ruler_area.set_size_request(short_dim_px, long_dim_px)
-
-    def draw_ruler(self):
-        self.ruler_area.queue_draw()
+        style_context = self.get_style_context()
+        self.font_family = style_context.get_property("font-family",
+                                                      self.get_state())
+        self.font_size   = style_context.get_property("font-size",
+                                                      self.get_state())
 
     def on_draw(self, area, context):
-        FONT = Pango.FontDescription("Sans 10")
+        font = Pango.FontDescription(f"{self.font_family} {self.font_size}")
         pc_layout  = PangoCairo.create_layout(context)
-        pc_layout.set_font_description(FONT)
+        pc_layout.set_font_description(font)
+
+        width_px  = area.get_allocated_width()
+        height_px = area.get_allocated_height()
+
+        if (width_px >= height_px):
+            long_dim_px     = width_px
+            short_dim_px    = height_px
+            orientation     = "landscape"
+            long_px_per_mm  = self.width_px_per_mm
+            short_px_per_mm = self.height_px_per_mm
+        else:
+            long_dim_px     = height_px
+            short_dim_px    = width_px
+            orientation     = "portrait"
+            long_px_per_mm  = self.width_px_per_mm
+            short_px_per_mm = self.height_px_per_mm
+
+        margin_px         = self.MARGIN_MM*long_px_per_mm
+        area.props.margin = margin_px
+
+        long_dim_mm  = long_dim_px/long_px_per_mm
+
+        # The shorter dimension is fixed to a maximum of 1"
+        short_px_per_inch = self.MM_PER_INCH*short_px_per_mm
+        short_dim_px      = min(short_dim_px, short_px_per_inch)
+        short_dim_mm      = short_dim_px/short_px_per_mm
 
         context.set_source_rgb(200/255, 200/255, 200/255)
-        if (self.orientation == "landscape"):
-            context.rectangle(0, 0, self.long_dim_px, self.short_dim_px)
+        if (orientation == "landscape"):
+            context.rectangle(0, 0, long_dim_px, short_dim_px)
         else:
-            context.rectangle(0, 0, self.short_dim_px, self.long_dim_px)
+            context.rectangle(0, 0, short_dim_px, long_dim_px)
         context.fill()
 
         context.set_source_rgb(0, 0, 0)
 
-        mms = math.floor(self.long_dim_mm)
+        mms = math.floor(long_dim_mm)
         for mm in range(mms):
             if ((mm % 10) == 0):
-                length_px = (self.short_dim_px/4)
+                length_px = (short_dim_px/4)
             elif ((mm % 5) == 0):
-                length_px = (self.short_dim_px/4)*(1/2)
+                length_px = (short_dim_px/4)*(1/2)
             else:
-                length_px = (self.short_dim_px/4)*((1/2)**2)
+                length_px = (short_dim_px/4)*((1/2)**2)
 
-            if (self.orientation == "landscape"):
-                context.move_to(mm*self.long_px_per_mm, 0)
-                context.line_to(mm*self.long_px_per_mm, length_px)
+            # Add 1 mm offset so marks aren't right on the edge
+            if (orientation == "landscape"):
+                context.move_to(mm*long_px_per_mm + long_px_per_mm, 0)
+                context.line_to(mm*long_px_per_mm + long_px_per_mm, length_px)
                 if ((mm % 10) == 0):
                     pc_layout.set_text(f"{mm//10}")
                     PangoCairo.update_layout(context, pc_layout)
                     PangoCairo.show_layout(context, pc_layout)
             else:
-                context.move_to(0, mm*self.long_px_per_mm)
-                context.line_to(length_px, mm*self.long_px_per_mm)
+                context.move_to(0, mm*long_px_per_mm + long_px_per_mm)
+                context.line_to(length_px, mm*long_px_per_mm + long_px_per_mm)
+                if ((mm % 10) == 0):
+                    pc_layout.set_text(f"{mm//10}")
+                    PangoCairo.update_layout(context, pc_layout)
+                    PangoCairo.show_layout(context, pc_layout)
         context.stroke()
 
-        px_per_inch = self.long_px_per_mm*self.MM_PER_INCH
-        sixteenths = math.floor((self.long_dim_mm/self.MM_PER_INCH)*16)
+        px_per_inch = long_px_per_mm*self.MM_PER_INCH
+        sixteenths = math.floor((long_dim_mm/self.MM_PER_INCH)*16)
         for sixteenth in range(sixteenths):
             if ((sixteenth % 16) == 0):
-                length_px = (self.short_dim_px/4)
+                length_px = (short_dim_px/4)
             elif ((sixteenth % 8) == 0):
-                length_px = (self.short_dim_px/4)*(3/4)
+                length_px = (short_dim_px/4)*(3/4)
             elif ((sixteenth % 4) == 0):
-                length_px = (self.short_dim_px/4)*((3/4)**2)
+                length_px = (short_dim_px/4)*((3/4)**2)
             elif ((sixteenth % 2) == 0):
-                length_px = (self.short_dim_px/4)*((3/4)**3)
+                length_px = (short_dim_px/4)*((3/4)**3)
             else:
-                length_px = (self.short_dim_px/4)*((3/4)**4)
+                length_px = (short_dim_px/4)*((3/4)**4)
 
-            if (self.orientation == "landscape"):
-                context.move_to((sixteenth/16)*px_per_inch,
-                                self.short_dim_px - length_px)
-                context.line_to((sixteenth/16)*px_per_inch,
-                                self.short_dim_px)
+            # Add 1 mm offset so marks aren't right on the edge
+            if (orientation == "landscape"):
+                context.move_to((sixteenth/16)*px_per_inch + long_px_per_mm,
+                                short_dim_px - length_px)
+                context.line_to((sixteenth/16)*px_per_inch + long_px_per_mm,
+                                short_dim_px)
                 if ((sixteenth % 16) == 0):
-                    context.move_to((sixteenth/16)*px_per_inch,
-                                self.short_dim_px - length_px - 15)
+                    context.move_to((sixteenth/16)*px_per_inch + long_px_per_mm,
+                                short_dim_px - length_px
+                                - 1.5*self.font_size)
                     pc_layout.set_text(f"{sixteenth//16}")
                     PangoCairo.update_layout(context, pc_layout)
                     PangoCairo.show_layout(context, pc_layout)
             else:
-                context.move_to(self.short_dim_px - length_px,
-                                (sixteenth/16)*px_per_inch)
-                context.line_to(self.short_dim_px,
-                                (sixteenth/16)*px_per_inch)
+                context.move_to(short_dim_px - length_px,
+                                (sixteenth/16)*px_per_inch + long_px_per_mm)
+                context.line_to(short_dim_px,
+                                (sixteenth/16)*px_per_inch + long_px_per_mm)
+                if ((sixteenth % 16) == 0):
+                    context.move_to(short_dim_px - length_px
+                                    - self.font_size,
+                                    (sixteenth/16)*px_per_inch + long_px_per_mm)
+                    pc_layout.set_text(f"{sixteenth//16}")
+                    PangoCairo.update_layout(context, pc_layout)
+                    PangoCairo.show_layout(context, pc_layout)
         context.stroke()
