@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=ruler
-Exec=ruler
-Icon=com.github.wctaylor.ruler
-Terminal=false
-Type=Application
-Categories=GTK;
-StartupNotify=true

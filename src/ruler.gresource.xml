@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/com/github/wctaylor/ruler">
+  <gresource prefix="/com/github/wctaylor/Ruler">
     <file>window.ui</file>
   </gresource>
 </gresources>

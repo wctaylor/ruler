@@ -1,6 +1,6 @@
-data/com.github.wctaylor.ruler.desktop.in
-data/com.github.wctaylor.ruler.appdata.xml.in
-data/com.github.wctaylor.ruler.gschema.xml
+data/com.github.wctaylor.Ruler.desktop.in
+data/com.github.wctaylor.Ruler.appdata.xml.in
+data/com.github.wctaylor.Ruler.gschema.xml
 src/window.ui
 src/main.py
 src/window.py

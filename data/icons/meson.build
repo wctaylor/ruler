@@ -1,4 +1,4 @@
-application_id = 'com.github.wctaylor.ruler'
+application_id = 'com.github.wctaylor.Ruler'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(

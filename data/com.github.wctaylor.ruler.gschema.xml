@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="ruler">
-	<schema id="com.github.wctaylor.ruler" path="/com/github/wctaylor/ruler/">
-	</schema>
-</schemalist>
