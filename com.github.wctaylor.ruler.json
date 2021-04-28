@@ -1,5 +1,5 @@
 {
-    "app-id" : "org.gnome.ruler",
+    "app-id" : "com.github.wctaylor.ruler",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "40",
     "sdk" : "org.gnome.Sdk",

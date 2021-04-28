@@ -1,6 +1,6 @@
 desktop_file = i18n.merge_file(
-  input: 'org.gnome.ruler.desktop.in',
-  output: 'org.gnome.ruler.desktop',
+  input: 'com.github.wctaylor.ruler.desktop.in',
+  output: 'com.github.wctaylor.ruler.desktop',
   type: 'desktop',
   po_dir: '../po',
   install: true,
@@ -15,8 +15,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-  input: 'org.gnome.ruler.appdata.xml.in',
-  output: 'org.gnome.ruler.appdata.xml',
+  input: 'com.github.wctaylor.ruler.appdata.xml.in',
+  output: 'com.github.wctaylor.ruler.appdata.xml',
   po_dir: '../po',
   install: true,
   install_dir: join_paths(get_option('datadir'), 'appdata')
@@ -29,7 +29,7 @@ if appstream_util.found()
   )
 endif
 
-install_data('org.gnome.ruler.gschema.xml',
+install_data('com.github.wctaylor.ruler.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas')
 )
 

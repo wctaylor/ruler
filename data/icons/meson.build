@@ -1,4 +1,4 @@
-application_id = 'org.gnome.ruler'
+application_id = 'com.github.wctaylor.ruler'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(
