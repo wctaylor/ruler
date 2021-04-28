@@ -73,7 +73,7 @@ class RulerWindow(Gtk.ApplicationWindow):
         short_dim_px      = min(short_dim_px, short_px_per_inch)
         short_dim_mm      = short_dim_px/short_px_per_mm
 
-        context.set_source_rgb(200/255, 200/255, 200/255)
+        context.set_source_rgb(154/255, 153/255, 150/255)
         if (orientation == "landscape"):
             context.rectangle(0, 0, long_dim_px, short_dim_px)
         else:
