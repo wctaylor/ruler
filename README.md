@@ -3,9 +3,8 @@
 Ruler is a simple ruler application
 designed with Purism's Librem 5 smartphone in mind.
 
-It is still very much a work in progress.
-
-![screenshot](https://github.com/wctaylor/ruler/blob/main/screenshots/design.png)
+<img src="https://github.com/wctaylor/ruler/blob/main/screenshots/landscape.png" alt="landscape" width="75%"/>
+<img src="https://github.com/wctaylor/ruler/blob/main/screenshots/portrait.png" alt="portrait" width="20%"/>
 
 ## Building from Source
 
