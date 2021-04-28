@@ -27,7 +27,7 @@ from .window import RulerWindow
 
 class Application(Gtk.Application):
     def __init__(self):
-        super().__init__(application_id='com.github.wctaylor.ruler',
+        super().__init__(application_id='com.github.wctaylor.Ruler',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
 
     def do_activate(self):

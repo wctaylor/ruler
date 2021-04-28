@@ -22,7 +22,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('PangoCairo', '1.0')
 from gi.repository import Gtk, Gdk, Pango, PangoCairo
 
-@Gtk.Template(resource_path='/com/github/wctaylor/ruler/window.ui')
+@Gtk.Template(resource_path='/com/github/wctaylor/Ruler/window.ui')
 class RulerWindow(Gtk.ApplicationWindow):
     # Set a default size of 5" x 1"
     MARGIN_MM   = 5
