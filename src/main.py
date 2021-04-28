@@ -27,7 +27,7 @@ from .window import RulerWindow
 
 class Application(Gtk.Application):
     def __init__(self):
-        super().__init__(application_id='org.gnome.ruler',
+        super().__init__(application_id='com.github.wctaylor.ruler',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
 
     def do_activate(self):
@@ -36,7 +36,40 @@ class Application(Gtk.Application):
             win = RulerWindow(application=self)
         win.present()
 
-        win.set_scale()
+        window  = win.get_window()
+        display = window.get_display()
+        monitor = display.get_monitor_at_window(window)
+
+        geometry      = monitor.get_geometry()
+        max_width_px  = geometry.width
+        max_height_px = geometry.height
+        max_width_mm  = monitor.get_width_mm()
+        max_height_mm = monitor.get_height_mm()
+
+        if (max_width_mm >= max_height_mm):
+            orientation     = "landscape"
+            long_dim_mm     = max_width_mm
+            short_dim_mm    = max_height_mm
+            long_px_per_mm  = max_width_px/max_width_mm
+            short_px_per_mm = max_height_px/max_height_mm
+        else:
+            orientation     = "portrait"
+            short_dim_mm    = max_width_mm
+            long_dim_mm     = max_height_mm
+            short_px_per_mm = max_width_px/max_width_mm
+            long_px_per_mm  = max_height_px/max_height_mm
+
+        if (long_dim_mm >= win.DEFAULT_LONG_DIM_MM):
+            long_dim_mm  = win.DEFAULT_LONG_DIM_MM
+        if (short_dim_mm >= win.DEFAULT_SHORT_DIM_MM):
+            short_dim_mm  = win.DEFAULT_SHORT_DIM_MM
+
+        long_dim_px  = long_dim_mm*long_px_per_mm
+        short_dim_px = short_dim_mm*short_px_per_mm
+
+        win.set_size(long_dim_mm, short_dim_mm,
+                     long_dim_px, short_dim_px, orientation)
+
         win.draw_ruler()
         # win.draw_ruler(width_mm, height_mm, width_px, height_px)
         # screen = self.get_screen()

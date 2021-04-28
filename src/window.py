@@ -15,16 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import gi
 import math
 import cairo
-from gi.repository import Gtk, Gdk
+gi.require_version('Gtk', '3.0')
+gi.require_version('PangoCairo', '1.0')
+from gi.repository import Gtk, Gdk, Pango, PangoCairo
 
-@Gtk.Template(resource_path='/org/gnome/ruler/window.ui')
+@Gtk.Template(resource_path='/com/github/wctaylor/ruler/window.ui')
 class RulerWindow(Gtk.ApplicationWindow):
     # Set a default size of 5" x 1"
     MM_PER_INCH      = 25.4
-    LONG_LENGTH_MM   = 5*MM_PER_INCH
-    SHORT_LENGTH_MM  = 1*MM_PER_INCH
+    DEFAULT_LONG_DIM_MM   = 5*MM_PER_INCH
+    DEFAULT_SHORT_DIM_MM  = 1*MM_PER_INCH
 
     __gtype_name__ = 'RulerWindow'
 
@@ -34,67 +37,89 @@ class RulerWindow(Gtk.ApplicationWindow):
         super().__init__(**kwargs)
         self.ruler_area.connect("draw", self.on_draw)
 
-    def set_scale(self):
-        window  = self.get_window()
-        display = window.get_display()
-        monitor = display.get_monitor_at_window(window)
+    def set_size(self, long_dim_mm, short_dim_mm,
+                 long_dim_px, short_dim_px, orientation):
+        self.long_dim_mm  = long_dim_mm
+        self.short_dim_mm = short_dim_mm
+        self.long_dim_px  = long_dim_px
+        self.short_dim_px = short_dim_px
 
-        geometry      = monitor.get_geometry()
-        max_width_px  = geometry.width
-        max_height_px = geometry.height
-        max_width_mm  = monitor.get_width_mm()
-        max_height_mm = monitor.get_height_mm()
+        self.long_px_per_mm  = long_dim_px/long_dim_mm
+        self.short_px_per_mm = short_dim_px/short_dim_mm
 
-        self.w_px_per_mm   = max_width_px/max_width_mm
-        self.h_px_per_mm   = max_height_px/max_height_mm
+        self.orientation = orientation
 
-        if (max_width_px >= max_height_px):
-            self.width_px  = self.LONG_LENGTH_MM*self.w_px_per_mm
-            self.height_px = self.SHORT_LENGTH_MM*self.h_px_per_mm
+        if (orientation == "landscape"):
+            self.ruler_area.set_size_request(long_dim_px, short_dim_px)
         else:
-            self.height_px = self.LONG_LENGTH_MM*self.w_px_per_mm
-            self.width_px  = self.SHORT_LENGTH_MM*self.h_px_per_mm
-
-        self.ruler_area.set_size_request(self.width_px, self.height_px)
+            self.ruler_area.set_size_request(short_dim_px, long_dim_px)
 
     def draw_ruler(self):
         self.ruler_area.queue_draw()
 
     def on_draw(self, area, context):
+        FONT = Pango.FontDescription("Sans 10")
+        pc_layout  = PangoCairo.create_layout(context)
+        pc_layout.set_font_description(FONT)
+
         context.set_source_rgb(200/255, 200/255, 200/255)
-        context.rectangle(0, 0, self.width_px, self.height_px)
+        if (self.orientation == "landscape"):
+            context.rectangle(0, 0, self.long_dim_px, self.short_dim_px)
+        else:
+            context.rectangle(0, 0, self.short_dim_px, self.long_dim_px)
         context.fill()
 
         context.set_source_rgb(0, 0, 0)
 
-        mms = math.floor(self.LONG_LENGTH_MM)
+        mms = math.floor(self.long_dim_mm)
         for mm in range(mms):
             if ((mm % 10) == 0):
-                height_px = self.height_px/4
+                length_px = (self.short_dim_px/4)
             elif ((mm % 5) == 0):
-                height_px = self.height_px/8
+                length_px = (self.short_dim_px/4)*(1/2)
             else:
-                height_px = self.height_px/16
+                length_px = (self.short_dim_px/4)*((1/2)**2)
 
-            context.move_to(mm*self.w_px_per_mm, 0)
-            context.line_to(mm*self.w_px_per_mm, height_px)
+            if (self.orientation == "landscape"):
+                context.move_to(mm*self.long_px_per_mm, 0)
+                context.line_to(mm*self.long_px_per_mm, length_px)
+                if ((mm % 10) == 0):
+                    pc_layout.set_text(f"{mm//10}")
+                    PangoCairo.update_layout(context, pc_layout)
+                    PangoCairo.show_layout(context, pc_layout)
+            else:
+                context.move_to(0, mm*self.long_px_per_mm)
+                context.line_to(length_px, mm*self.long_px_per_mm)
         context.stroke()
 
-        sixteenths = math.floor(self.LONG_LENGTH_MM/self.MM_PER_INCH*16)
+        px_per_inch = self.long_px_per_mm*self.MM_PER_INCH
+        sixteenths = math.floor((self.long_dim_mm/self.MM_PER_INCH)*16)
         for sixteenth in range(sixteenths):
             if ((sixteenth % 16) == 0):
-                height_px = (self.height_px/4)
+                length_px = (self.short_dim_px/4)
             elif ((sixteenth % 8) == 0):
-                height_px = (self.height_px/4)*(3/4)
+                length_px = (self.short_dim_px/4)*(3/4)
             elif ((sixteenth % 4) == 0):
-                height_px = (self.height_px/4)*((3/4)**2)
+                length_px = (self.short_dim_px/4)*((3/4)**2)
             elif ((sixteenth % 2) == 0):
-                height_px = (self.height_px/4)*((3/4)**3)
+                length_px = (self.short_dim_px/4)*((3/4)**3)
             else:
-                height_px = (self.height_px/4)*((3/4)**4)
+                length_px = (self.short_dim_px/4)*((3/4)**4)
 
-            context.move_to((sixteenth/16)*self.w_px_per_mm*self.MM_PER_INCH,
-                            self.height_px - height_px)
-            context.line_to((sixteenth/16)*self.w_px_per_mm*self.MM_PER_INCH,
-                            self.height_px)
+            if (self.orientation == "landscape"):
+                context.move_to((sixteenth/16)*px_per_inch,
+                                self.short_dim_px - length_px)
+                context.line_to((sixteenth/16)*px_per_inch,
+                                self.short_dim_px)
+                if ((sixteenth % 16) == 0):
+                    context.move_to((sixteenth/16)*px_per_inch,
+                                self.short_dim_px - length_px - 15)
+                    pc_layout.set_text(f"{sixteenth//16}")
+                    PangoCairo.update_layout(context, pc_layout)
+                    PangoCairo.show_layout(context, pc_layout)
+            else:
+                context.move_to(self.short_dim_px - length_px,
+                                (sixteenth/16)*px_per_inch)
+                context.line_to(self.short_dim_px,
+                                (sixteenth/16)*px_per_inch)
         context.stroke()
