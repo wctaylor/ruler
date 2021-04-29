@@ -1,9 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
 	<id>com.github.wctaylor.Ruler</id>
+  <name>Ruler</name>
+  <summary>Displays a ruler for measuring length</summary>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
 	<description>
-	  A GTK-based ruler for measuring lengths conveniently.
+	  <p>A GTK-based ruler for measuring lengths conveniently.</p>
 	</description>
+  <url type="homepage">https://github.com/wctaylor/ruler</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Landscape orientation</caption>
+      <image width="1732" height="399">https://github.com/wctaylor/ruler/blob/main/screenshots/landscape.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Portrait orientation</caption>
+      <image width="248" height="1005">https://github.com/wctaylor/ruler/blob/main/screenshots/portrait.png</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="1.0.0" date="2021-04-29">
+      <p>First release</p>
+    </release>
+  </releases>>
+  <content_rating type="oars-1.1" />
 </component>
