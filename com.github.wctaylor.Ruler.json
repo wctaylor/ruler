@@ -28,8 +28,8 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "file:///home/will/Projects/ruler"
+                    "type" : "dir",
+                    "path" : "."
                 }
             ]
         }
