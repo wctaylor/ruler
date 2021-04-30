@@ -24,8 +24,11 @@ from gi.repository import Gtk, Gdk, Pango, PangoCairo
 
 @Gtk.Template(resource_path='/com/github/wctaylor/Ruler/window.ui')
 class RulerWindow(Gtk.ApplicationWindow):
-    MARGIN_MM   = 2.5
-    MM_PER_INCH = 25.4
+    MARGIN_MM    = 2.5
+    MM_PER_INCH  = 25.4
+    PTS_PER_INCH = 72
+    PTS_PER_MM   = PTS_PER_INCH/MM_PER_INCH
+
     # The shorter dimension is fixed to a maximum of 0.5"
     MAX_RULER_HEIGHT_MM = 0.5*MM_PER_INCH
 
@@ -44,8 +47,6 @@ class RulerWindow(Gtk.ApplicationWindow):
         self.ruler_area.connect("draw", self.on_draw)
 
         style_context    = self.get_style_context()
-        self.font_size   = style_context.get_property("font-size",
-                                                      self.get_state())
         self.font_family = style_context.get_property("font-family",
                                                       self.get_state())
 
@@ -103,8 +104,8 @@ class RulerWindow(Gtk.ApplicationWindow):
 
     def draw_ruler(self, context, width_px, height_px,
               width_offset_px, height_offset_px, angle_radians):
-        width_mm           = width_px/self.width_px_per_mm
-        height_mm          = height_px/self.height_px_per_mm
+        width_mm  = width_px/self.width_px_per_mm
+        height_mm = height_px/self.height_px_per_mm
 
         context.save()
         context.translate(width_offset_px, height_offset_px)
@@ -114,8 +115,9 @@ class RulerWindow(Gtk.ApplicationWindow):
         context.rectangle(0, 0, width_px, height_px)
         context.fill()
 
-        font = Pango.FontDescription(f"{self.font_family} {self.font_size}")
-        pc_layout  = PangoCairo.create_layout(context)
+        font_size = (height_mm/4)*self.PTS_PER_MM
+        font      = Pango.FontDescription(f"{self.font_family} {font_size}")
+        pc_layout = PangoCairo.create_layout(context)
         pc_layout.set_font_description(font)
 
         context.set_source_rgb(0, 0, 0)
@@ -165,7 +167,7 @@ class RulerWindow(Gtk.ApplicationWindow):
             context.line_to(x_px, height_px)
             if ((sixteenth % 16) == 0):
                 context.move_to(x_px,
-                                height_px - length_px - 1.5*self.font_size)
+                                height_px - length_px - 1.5*font_size)
                 pc_layout.set_text(f"{sixteenth//16}")
                 PangoCairo.update_layout(context, pc_layout)
                 PangoCairo.show_layout(context, pc_layout)
