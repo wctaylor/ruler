@@ -11,12 +11,8 @@
   <url type="homepage">https://github.com/wctaylor/ruler</url>
   <screenshots>
     <screenshot type="default">
-      <caption>Landscape orientation</caption>
-      <image width="1732" height="399">https://github.com/wctaylor/ruler/blob/main/screenshots/landscape.png</image>
-    </screenshot>
-    <screenshot type="default">
-      <caption>Portrait orientation</caption>
-      <image width="248" height="1005">https://github.com/wctaylor/ruler/blob/main/screenshots/portrait.png</image>
+      <caption>The different available layouts</caption>
+      <image type="source">https://raw.githubusercontent.com/wctaylor/ruler/main/screenshots/composite.png</image>
     </screenshot>
   </screenshots>
   <releases>
