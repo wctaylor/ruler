@@ -5,6 +5,7 @@
     "sdk" : "org.gnome.Sdk",
     "command" : "ruler",
     "finish-args" : [
+    	"--share=ipc",
         "--socket=fallback-x11",
         "--socket=wayland"
     ],
