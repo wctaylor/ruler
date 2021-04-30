@@ -47,8 +47,9 @@ class Application(Gtk.Application):
         max_width_mm  = monitor.get_width_mm()
         max_height_mm = monitor.get_height_mm()
 
-        window.width_px_per_mm  = max_width_px/max_width_mm
-        window.height_px_per_mm = max_height_px/max_height_mm
+        window.width_px_per_mm      = max_width_px/max_width_mm
+        window.height_px_per_mm     = max_height_px/max_height_mm
+        window.monitor_aspect_ratio = max_width_px/max_height_px
 
 def main(version):
     app = Application()
