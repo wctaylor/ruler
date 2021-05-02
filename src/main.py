@@ -36,8 +36,12 @@ class Application(Gtk.Application):
             window = RulerWindow(application=self)
         window.present()
 
-        # Initial set up
-        gdk_window  = window.get_window()
+        screen = window.get_screen()
+        screen.connect("monitors_changed", self.on_monitors_changed)
+        self.config_monitors(window)
+
+    def config_monitors(self, gtk_window):
+        gdk_window  = gtk_window.get_window()
         display     = gdk_window.get_display()
         monitor     = display.get_monitor_at_window(gdk_window)
 
@@ -47,9 +51,13 @@ class Application(Gtk.Application):
         max_width_mm  = monitor.get_width_mm()
         max_height_mm = monitor.get_height_mm()
 
-        window.width_px_per_mm      = max_width_px/max_width_mm
-        window.height_px_per_mm     = max_height_px/max_height_mm
-        window.monitor_aspect_ratio = max_width_px/max_height_px
+        gtk_window.width_px_per_mm      = max_width_px/max_width_mm
+        gtk_window.height_px_per_mm     = max_height_px/max_height_mm
+        gtk_window.monitor_aspect_ratio = max_width_px/max_height_px
+
+    def on_monitors_changed(self, screen):
+        self.config_monitors(self.props.active_window)
+
 
 def main(version):
     app = Application()
